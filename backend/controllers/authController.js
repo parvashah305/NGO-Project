@@ -43,6 +43,7 @@ exports.login = async (req, res) => {
             if (!user) {
                 return res.status(404).json({ message: "NGO does not exist." });
             }
+            return res.status(201).json({ message: "NGO logged in successfully." });
         } else if (loginFor == "donor") {
             // TODO
         }
