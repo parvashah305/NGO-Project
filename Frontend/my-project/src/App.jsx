@@ -12,11 +12,22 @@ import DonorsDonatePage from './components/DonorsDonatePage'
 import Home from './components/Home'
 import AboutUs from './components/AboutUs'
 import Contact from './components/Contact'
+import { ToastContainer } from 'react-toastify';
+
 
 function App() {
  
   return (
     <Router>
+      <ToastContainer 
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="light"
+      />
       <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<AboutUs />} />

@@ -1,328 +1,272 @@
 import React, { useState } from "react";
-import { FaArrowUp, FaArrowDown, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import img1 from "../assets/img1.jpg";
 
 const CustomizePageNGO = () => {
-  const [bgColor, setBgColor] = useState("#ffffff");
-  const [font, setFont] = useState("Arial");
-  const [fontSize, setFontSize] = useState(16);
-  const [bgImage, setBgImage] = useState(null);
   const [ngoName, setNgoName] = useState("Your NGO Name");
-  const [ngoNameColor, setNgoNameColor] = useState("#000000");
-  const [ngoTextColor, setNgoTextColor] = useState("#000000");
-  const [description, setDescription] = useState(
-    "We are dedicated to making the world a better place through our initiatives."
-  );
-  
-  const [modalOpen, setModalOpen] = useState(false);
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [bgPosition, setBgPosition] = useState("center");
-  const [images, setImages] = useState([]);
-  const [videos, setVideos] = useState([]);
-  const [blogs, setBlogs] = useState("");
+  const [description, setDescription] = useState(`
+    <p>
+      Welcome to our NGO! We are dedicated to making the world a better place 
+      by addressing critical social issues. Our initiatives aim to empower 
+      communities, provide education, and support sustainable development.
+    </p>
+    <br/>
+    <p>
+      Welcome to our NGO! We are dedicated to making the world a better place 
+      by addressing critical social issues. Our initiatives aim to empower 
+      communities, provide education, and support sustainable development.
+    </p>
+    <br/>
+    <p>
+      Welcome to our NGO! We are dedicated to making the world a better place 
+      by addressing critical social issues. Our initiatives aim to empower 
+      communities, provide education, and support sustainable development.
+    </p>
+  `);
+  const [image, setImage] = useState([img1]);
+  const [contactInfo, setContactInfo] = useState({
+    phone: "123-456-7890",
+    email: "contact@ngo.org",
+    address: "123 NGO Street, City, Country",
+  });
+  const [blogs, setBlogs] = useState(`
+    <p>Start writing your blog content here...</p>
+  `);
+  const [media, setMedia] = useState({
+    images: [],
+    videos: [],
+  });
 
-  const handleBgImageChange = (e) => {
+  const descriptionEditor = useEditor({
+    extensions: [StarterKit],
+    content: description,
+    onUpdate: ({ editor }) => {
+      setDescription(editor.getHTML());
+    },
+  });
+
+  const blogsEditor = useEditor({
+    extensions: [StarterKit],
+    content: blogs,
+    onUpdate: ({ editor }) => {
+      setBlogs(editor.getHTML());
+    },
+  });
+
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = () => setBgImage(reader.result);
+
+      reader.onloadend = () => {
+        const img = new Image();
+        img.src = reader.result;
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+
+          const maxWidth = 600;
+          const maxHeight = 600;
+
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = width * ratio;
+            height = height * ratio;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const resizedImage = canvas.toDataURL("image/jpeg");
+
+          setImage([...image, resizedImage]);
+        };
+      };
+
       reader.readAsDataURL(file);
     }
   };
 
-  const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map((file) => URL.createObjectURL(file));
-    setImages([...images, ...newImages]);
-  };
-
-  const handleVideoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newVideos = files.map((file) => URL.createObjectURL(file));
-    setVideos([...videos, ...newVideos]);
+  const handleMediaUpload = (e, type) => {
+    const file = e.target.files[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      if (type === "image") {
+        setMedia({ ...media, images: [...media.images, url] });
+      } else if (type === "video") {
+        setMedia({ ...media, videos: [...media.videos, url] });
+      }
+    }
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* Left Sidebar */}
-      <div className="w-1/4 bg-gray-100 p-4 space-y-6">
-        <h2 className="text-lg font-bold">Customize Your Page</h2>
-
-        {/* Change Background Color */}
-        <div>
-          <label className="block font-semibold mb-2">Change Background Color</label>
-          <input
-            type="color"
-            value={bgColor}
-            onChange={(e) => setBgColor(e.target.value)}
-            className="w-full h-10"
-          />
-        </div>
-
-        {/* Change NGO Name Color */}
-        <div>
-          <label className="block font-semibold mb-2">NGO Name Color</label>
-          <input
-            type="color"
-            value={ngoNameColor}
-            onChange={(e) => setNgoNameColor(e.target.value)}
-            className="w-full h-10"
-          />
-        </div>
-
-        {/* Change NGO Text Color */}
-        <div>
-          <label className="block font-semibold mb-2">NGO Text Color</label>
-          <input
-            type="color"
-            value={ngoTextColor}
-            onChange={(e) => setNgoTextColor(e.target.value)}
-            className="w-full h-10"
-          />
-        </div>
-
-        {/* Change Font */}
-        <div>
-          <label className="block font-semibold mb-2">Change Font</label>
-          <select
-            value={font}
-            onChange={(e) => setFont(e.target.value)}
-            className="w-full border rounded p-2"
-          >
-            <option value="Arial">Arial</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Courier New">Courier New</option>
-          </select>
-        </div>
-
-        {/* Font Size */}
-        <div>
-          <label className="block font-semibold mb-2">Font Size</label>
-          <input
-            type="range"
-            min="12"
-            max="32"
-            value={fontSize}
-            onChange={(e) => setFontSize(e.target.value)}
-            className="w-full"
-          />
-        </div>
-
-        {/* Background Image */}
-        <div>
-          <label className="block font-semibold mb-2">Header Background Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleBgImageChange}
-            className="w-full"
-          />
-        </div>
-
-        {/* Adjust Background Position */}
-        <div>
-          <label className="block font-semibold mb-2">Adjust Background Position</label>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setBgPosition("top")}
-              className="p-2 bg-gray-300 rounded-full"
-            >
-              <FaArrowUp />
-            </button>
-            <button
-              onClick={() => setBgPosition("bottom")}
-              className="p-2 bg-gray-300 rounded-full"
-            >
-              <FaArrowDown />
-            </button>
-            <button
-              onClick={() => setBgPosition("left")}
-              className="p-2 bg-gray-300 rounded-full"
-            >
-              <FaArrowLeft />
-            </button>
-            <button
-              onClick={() => setBgPosition("right")}
-              className="p-2 bg-gray-300 rounded-full"
-            >
-              <FaArrowRight />
-            </button>
-          </div>
-        </div>
-
-        {/* Media Upload */}
-        <div>
-          <label className="block font-semibold mb-2">Add Images</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageUpload}
-            className="w-full"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Add Videos</label>
-          <input
-            type="file"
-            accept="video/*"
-            multiple
-            onChange={handleVideoUpload}
-            className="w-full"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-2">Add Blog Content</label>
-          <textarea
-            value={blogs}
-            onChange={(e) => setBlogs(e.target.value)}
-            className="w-full border rounded p-2 h-32"
-          />
-        </div>
-
-        {/* General Details Modal */}
-        <div>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
-          >
-            General Details
-          </button>
-        </div>
+    <div className="min-h-screen bg-gray-100">
+      {/* NGO Header */}
+      <div className="bg-black text-white text-center py-6">
+        <h1
+          contentEditable
+          suppressContentEditableWarning
+          className="text-4xl font-bold"
+          onBlur={(e) => setNgoName(e.target.textContent)}
+        >
+          {ngoName}
+        </h1>
       </div>
 
-      {/* Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-96">
-            <h2 className="text-lg font-bold mb-4">General Details</h2>
-            <label className="block mb-2">Phone:</label>
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full border p-2 rounded mb-4"
+      {/* About Us Section */}
+      <div className="bg-white px-6 lg:px-20 py-12 ">
+        <h2 className="text-4xl font-bold mb-6 text-center ">About Us</h2>
+        <div className="flex flex-col lg:flex-row items-center justify-between pt-6">
+          
+
+          <div className="lg:w-1/2 lg:pr-10  lg:text-left">
+            <EditorContent editor={descriptionEditor} />
+          </div>
+          
+          <div className="lg:w-1/2 mt-8 lg:mt-0">
+            <img
+              src={image}
+              alt="NGO"
+              className="w-full h-auto object-contain rounded"
             />
-            <label className="block mb-2">Address:</label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full border p-2 rounded mb-4"
-            />
-            <label className="block mb-2">Description:</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full border p-2 rounded mb-4"
-            />
-            <div className="flex justify-end">
-              <button
-                onClick={() => setModalOpen(false)}
-                className="bg-gray-300 px-4 py-2 rounded mr-2"
-              >
-                Close
-              </button>
+            <div className="mt-4">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="block mx-auto"
+              />
             </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Right Preview Area */}
-      <div
-        className="w-3/4  space-y-6"
-        style={{
-          backgroundColor: bgColor,
-        }}
-      >
-        {/* Header Section */}
-        <div
-          className="relative h-48 flex items-center justify-center"
-          style={{
-            backgroundImage: bgImage ? `url(${bgImage})` : "none",
-            backgroundSize: "cover",
-            backgroundPosition: bgPosition,
-          }}
-        >
-          <h1
-            className="text-4xl font-bold text-center"
-            style={{
-              fontFamily: font,
-              color: ngoNameColor,
-            }}
-          >
-            {ngoName}
-          </h1>
+      {/* Contact Us Section */}
+      <div className="bg-white text-black py-12 px-6 lg:px-20">
+        <h2 className="text-4xl font-bold text-center mb-10">Contact Us</h2>
+        <div className="flex flex-col space-y-8 lg:space-y-10">
+          
+          <div className="flex items-center space-x-4">
+            <div className="bg-gray-800 text-white rounded-full p-4">
+              <i className="ri-home-line text-2xl"></i>
+            </div>
+            <div>
+              <p className="font-semibold text-xl">Address</p>
+              <p
+                contentEditable
+                suppressContentEditableWarning
+                className="text-lg"
+                onBlur={(e) =>
+                  setContactInfo({
+                    ...contactInfo,
+                    address: e.target.textContent,
+                  })
+                }
+              >
+                {contactInfo.address}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <div className="bg-gray-800 text-white rounded-full p-4">
+              <i className="ri-phone-line text-2xl"></i>
+            </div>
+            <div>
+              <p className="font-semibold text-xl">Phone</p>
+              <p
+                contentEditable
+                suppressContentEditableWarning
+                className="text-lg"
+                onBlur={(e) =>
+                  setContactInfo({
+                    ...contactInfo,
+                    phone: e.target.textContent,
+                  })
+                }
+              >
+                {contactInfo.phone}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="bg-gray-800 text-white rounded-full p-4">
+              <i className="ri-mail-line text-2xl"></i>
+            </div>
+            <div>
+              <p className="font-semibold text-xl">Email</p>
+              <p
+                contentEditable
+                suppressContentEditableWarning
+                className="text-lg"
+                onBlur={(e) =>
+                  setContactInfo({
+                    ...contactInfo,
+                    email: e.target.textContent,
+                  })
+                }
+              >
+                {contactInfo.email}
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
 
-        {/* NGO Details */}
-        <div className=" p-6 ">
-          <h2
-            className="text-xl font-bold mb-2"
-            style={{ fontFamily: font, fontSize: `${fontSize}px` }}
-          >
-            About Us
-          </h2>
-          <p
-            style={{ fontFamily: font, fontSize: `${fontSize}px`, color: ngoTextColor }}
-            className="mb-4"
-          >
-            {description}
-          </p>
-          <p
-            style={{ fontFamily: font, fontSize: `${fontSize}px`, color: ngoTextColor }}
-          >
-            Phone: {phone}
-          </p>
-          <p
-            style={{ fontFamily: font, fontSize: `${fontSize}px`, color: ngoTextColor }}
-          >
-            Address: {address}
-          </p>
+      {/* Media and Blogs Section */}
+      <div className="bg-white py-12 px-6 lg:px-20">
+        <h2 className="text-4xl font-bold text-center mb-6">Media and Blogs</h2>
+        <div className="mt-4">
+          <EditorContent editor={blogsEditor} />
         </div>
-
-        {/* Media Section */}
-        <div className="space-y-4 p-6">
-          <h2
-            className="text-xl font-bold mb-4"
-            style={{ fontFamily: font, fontSize: `${fontSize}px` }}
-          >
-            Media
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            {images.map((img, index) => (
+        
+        <div className="mt-6">
+          <label className="block text-lg font-semibold mb-2">
+            Upload an Image
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleMediaUpload(e, "image")}
+            className="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2"
+          />
+          {media.images.map((img, index) => (
+            <div key={index} className="mt-4">
               <img
-                key={index}
                 src={img}
-                alt="NGO Media"
-                className="w-full h-48 object-cover rounded"
+                alt={`Uploaded Image ${index + 1}`}
+                className="max-w-full max-h-72 object-contain"
               />
-            ))}
-            {videos.map((vid, index) => (
-              <video
-                key={index}
-                src={vid}
-                controls
-                className="w-full h-48 object-cover rounded"
-              />
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
-        {/* Blog Section */}
-        {blogs && (
-          <div className=" p-6">
-            <h2
-              className="text-xl font-bold mb-4"
-              style={{ fontFamily: font, fontSize: `${fontSize}px` }}
-            >
-              Blog
-            </h2>
-            <p style={{ fontFamily: font, fontSize: `${fontSize}px` }}>{blogs}</p>
-          </div>
-        )}
+        <div className="mt-6">
+          <label className="block text-lg font-semibold mb-2">
+            Upload a Video
+          </label>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={(e) => handleMediaUpload(e, "video")}
+            className="block w-full text-sm text-gray-700 border border-gray-300 rounded px-3 py-2"
+          />
+          {media.videos.map((video, index) => (
+            <div key={index} className="mt-4">
+              <video controls className="w-full max-h-72">
+                <source src={video} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

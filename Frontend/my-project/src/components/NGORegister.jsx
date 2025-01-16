@@ -1,13 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import NGOLogin from "./NGOLogin"; 
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const NGORegister = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const navigate=useNavigate()
+
+  useEffect(()=>{
+    toast.dismiss()
+  },[])
 
   const {
     register,
@@ -36,11 +42,21 @@ const NGORegister = () => {
       const result = await res.json();
 
       if(res.ok){
-        alert(result.message)
-        navigate('/ngodashboard')
+        toast.success(result.message, {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "light",
+        });
+        setTimeout(()=>{
+          navigate('/ngodashboard')
+        },3000)
       }
       else{
-        alert(result.message)
+        toast.error(result.message, {
+          position: "top-center",
+          autoClose: 5000,
+          theme: "light",
+        });
       }
 
     } catch (error) {

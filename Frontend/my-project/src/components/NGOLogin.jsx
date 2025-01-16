@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const NGOLogin = ({ closeModal }) => {
 
@@ -12,7 +13,6 @@ const NGOLogin = ({ closeModal }) => {
     formState: { errors },
   } = useForm();
 
-  // Handle form submission
   const onSubmit = async(data) => {
     console.log("Login data submitted:", data);
 
@@ -34,11 +34,21 @@ const NGOLogin = ({ closeModal }) => {
       const result=await res.json()
 
       if(res.ok){
-        alert(result.message)
-        navigate('/ngodashboard')
+        toast.success(result.message,{
+          position:"top-center",
+          autoClose:"3000",
+          theme:"light"
+        })
+        setTimeout(()=>{
+          navigate('/ngodashboard')
+        },3000)
       }
       else{
-        alert(result.message)
+        toast.error(result.message,{
+          position:"top-center",
+          autoClose:"3000",
+          theme:"light"
+        })
       }
 
    } catch (error) {
@@ -51,7 +61,7 @@ const NGOLogin = ({ closeModal }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-96 p-6 relative">
-        {/* Close Button */}
+  
         <button
           onClick={closeModal}
           className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
@@ -59,12 +69,10 @@ const NGOLogin = ({ closeModal }) => {
           &times;
         </button>
 
-        {/* Modal Header */}
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Login</h2>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Email */}
+         
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
               Email
@@ -92,7 +100,6 @@ const NGOLogin = ({ closeModal }) => {
             )}
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
               Password
@@ -120,7 +127,6 @@ const NGOLogin = ({ closeModal }) => {
             )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"

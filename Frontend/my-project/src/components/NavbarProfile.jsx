@@ -82,9 +82,7 @@ const Navbar = () => {
           <div>
             <i class="ri-account-circle-line text-2xl"></i>
           </div>
-          <button className=" text-white">
-            My Profile
-          </button>
+          <button className=" text-white">My Profile</button>
         </div>
       </div>
 
@@ -116,19 +114,11 @@ const Navbar = () => {
               </button>
             </li>
           </ul>
-          <div className="space-y-4">
-            <button
-              onClick={donate}
-              className="bg-white text-black w-full py-2 rounded hover:bg-gray-300"
-            >
-              Donate Now
-            </button>
-            <button
-              onClick={register}
-              className="bg-white text-black w-full py-2 rounded hover:bg-gray-300"
-            >
-              Register as NGO
-            </button>
+          <div className="flex justify-center items-center gap-2 cursor-pointer">
+            <div>
+              <i class="ri-account-circle-line text-2xl"></i>
+            </div>
+            <button className=" text-white">My Profile</button>
           </div>
         </div>
       )}
