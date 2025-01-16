@@ -1,7 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const NGOLogin = ({ closeModal }) => {
+
+  const navigate=useNavigate()
+
   const {
     register,
     handleSubmit,
@@ -9,8 +13,38 @@ const NGOLogin = ({ closeModal }) => {
   } = useForm();
 
   // Handle form submission
-  const onSubmit = (data) => {
+  const onSubmit = async(data) => {
     console.log("Login data submitted:", data);
+
+    const NGOInfo={
+      email:data.email,
+      password:data.password
+    }
+
+   try {
+
+      const res=await fetch("http://localhost:3000/login?loginFor=ngo",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+      },
+      body:JSON.stringify(NGOInfo),
+      })
+      
+      const result=await res.json()
+
+      if(res.ok){
+        alert(result.message)
+        navigate('/ngodashboard')
+      }
+      else{
+        alert(result.message)
+      }
+
+   } catch (error) {
+        alert(error)
+   }
+
     closeModal(); 
   };
 

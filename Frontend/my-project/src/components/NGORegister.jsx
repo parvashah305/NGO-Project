@@ -15,9 +15,38 @@ const NGORegister = () => {
     formState: { errors },
   } = useForm();
 
-  const onSubmit = (data) => {
+  const onSubmit = async(data) => {
     console.log(data);
-    navigate('/ngodashboard')
+
+    const NGOInfo={
+      name:data.name,
+      email:data.email,
+      password:data.password
+    }
+
+    try {
+      const res = await fetch("http://localhost:3000/ngo/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(NGOInfo),
+      });
+
+      const result = await res.json();
+
+      if(res.ok){
+        alert(result.message)
+        navigate('/ngodashboard')
+      }
+      else{
+        alert(result.message)
+      }
+
+    } catch (error) {
+      alert(error)
+    }
+
   };
 
   const openModal = () => {

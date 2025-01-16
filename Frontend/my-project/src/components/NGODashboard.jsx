@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
+import NavbarProfile from "./NavbarProfile";
 import Footer from "./Footer";
 
 const NGODashboard = () => {
@@ -17,7 +17,7 @@ const NGODashboard = () => {
 
   return (
     <div>
-      <Navbar/>
+      <NavbarProfile/>
       <div className="mt-24 flex flex-col items-center justify-center p-8">
       
         <div className=" w-full max-w-3xl p-6 text-center">
