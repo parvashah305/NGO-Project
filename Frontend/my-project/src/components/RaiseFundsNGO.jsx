@@ -61,7 +61,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
       <h2 className="text-lg font-bold">Campaign {index + 1}</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Title */}
+       
         <div>
           <label className="block font-semibold mb-2">Title</label>
           <input
@@ -74,7 +74,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
-        {/* Cause */}
         <div>
           <label className="block font-semibold mb-2">Cause</label>
           <input
@@ -87,7 +86,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
-        {/* Target Funds */}
         <div>
           <label className="block font-semibold mb-2">Target Funds</label>
           <input
@@ -103,7 +101,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
-        {/* Image Upload */}
         <div>
           <label className="block font-semibold mb-2">Upload Images</label>
           <Controller
@@ -134,7 +131,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
           </div>
         </div>
 
-        {/* Save Button */}
         <button
           type="submit"
           className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
