@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken')
 const brcypt = require('bcryptjs')
 const NGO = require('../models/ngoSchema')
 const { logApi } = require('../utils')
+const Contact=require('../models/contactSchema')
 
 require('dotenv').config();
 
@@ -65,5 +66,23 @@ exports.login = async (req, res) => {
     } catch (error) {
         logApi(req, 500, error);
         return res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+exports.contact=async(req,res)=>{
+    try {
+        const {name,email,message}=req.body
+
+        const newContact= new Contact({
+            name,
+            email,
+            message,
+        })
+
+        await newContact.save()
+
+        return res.status(201).json({message:"ThankYou for Contacting us"})
+    } catch (error) {
+        return res.status(500).json({message:"Internal Server Error"})
     }
 }
