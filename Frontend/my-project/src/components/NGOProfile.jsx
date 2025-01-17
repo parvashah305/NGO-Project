@@ -299,6 +299,17 @@ const NGOProfile = ({ ngoName, ngoEmail }) => {
             </div>
             <div>
               <label className="block text-gray-700 font-semibold mb-1">
+                Slogan *
+              </label>
+              <input
+                type="text"
+                {...register("slogan")}
+                className="w-full p-2 border rounded"
+              />
+            
+            </div>
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">
                 Official Website
               </label>
               <input
