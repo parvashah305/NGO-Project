@@ -13,6 +13,7 @@ import Home from './components/Home'
 import AboutUs from './components/AboutUs'
 import Contact from './components/Contact'
 import { ToastContainer } from 'react-toastify';
+import NGOProfile from './components/NGOProfile'
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
             <Route path="/about" element={<AboutUs />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/registerngo" element={<NGORegister />} />
+            <Route path="/profilengo" element={<NGOProfile />} />
             <Route path="/loginngo" element={<NGOLogin />} />
             <Route path="/registerdonor" element={<DonorRegister />} />
             <Route path="/logindonor" element={<DonorLoginModal />} />
