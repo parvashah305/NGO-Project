@@ -34,7 +34,7 @@ const NGOLogin = ({ closeModal }) => {
       const result=await res.json()
 
       if(res.ok){
-        toast.success(result.message,{
+        toast.success("Logged in Successfully",{
           position:"top-center",
           autoClose:"3000",
           theme:"light"
