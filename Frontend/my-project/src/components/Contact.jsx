@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import Navbar from "./Navbar"; 
 import Footer from "./Footer"; 
+import { toast } from "react-toastify";
 
 const Contact = () => {
   const {
@@ -11,9 +12,48 @@ const Contact = () => {
     reset,
   } = useForm();
 
-  const onSubmit = (data) => {
+  const onSubmit = async(data) => {
     console.log(data); 
-    alert("Your message has been sent successfully!");
+
+    const contactInfo={
+      name:data.name,
+      email:data.email,
+      message:data.message,
+    }
+
+    try {
+      const res=await fetch("http://localhost:3000/contact",{
+        method:"POST",
+        headers:{
+           "Content-Type":"application/json"
+        },
+        body:JSON.stringify(contactInfo),
+      })
+
+      const result=await res.json()
+
+      if(res.ok){
+        toast.success(`${result.message}`,{
+          position:"top-center",
+          autoClose:3000,
+          theme:"light",
+        })
+      }
+      else{
+        toast.error("Error",{
+          position:"top-center",
+          autoClose:3000,
+          theme:"light",
+        })
+      }
+    } catch (error) {
+      toast.error(error,{
+        position:"top-center",
+          autoClose:3000,
+          theme:"light",
+      })
+    }
+
     reset();
   };
 
@@ -72,7 +112,7 @@ const Contact = () => {
                     htmlFor="name"
                     className="block text-sm font-medium mb-2"
                   >
-                    Name
+                    Name *
                   </label>
                   <input
                     type="text"
@@ -94,7 +134,7 @@ const Contact = () => {
                     htmlFor="email"
                     className="block text-sm font-medium mb-2"
                   >
-                    Email
+                    Email *
                   </label>
                   <input
                     type="email"
@@ -123,7 +163,7 @@ const Contact = () => {
                     htmlFor="message"
                     className="block text-sm font-medium mb-2"
                   >
-                    Message or Query
+                    Message or Query *
                   </label>
                   <textarea
                     id="message"
