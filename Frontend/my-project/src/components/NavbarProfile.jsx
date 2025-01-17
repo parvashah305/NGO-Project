@@ -10,6 +10,10 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
+  const Profile=()=>{
+    navigate('/profilengo')
+  }
+
   return (
     <nav className="bg-black text-white fixed w-full top-0 z-10">
       <div className="max-w-7xl mx-auto flex justify-between items-center p-4">
@@ -80,9 +84,9 @@ const Navbar = () => {
 
         <div className="hidden md:flex justify-center items-center gap-2 cursor-pointer">
           <div>
-            <i class="ri-account-circle-line text-2xl"></i>
+            <i onClick={Profile} class="ri-account-circle-line text-2xl"></i>
           </div>
-          <button className=" text-white">My Profile</button>
+          <button onClick={Profile} className=" text-white">My Profile</button>
         </div>
       </div>
 
@@ -116,9 +120,9 @@ const Navbar = () => {
           </ul>
           <div className="flex justify-center items-center gap-2 cursor-pointer">
             <div>
-              <i class="ri-account-circle-line text-2xl"></i>
+              <i onClick={Profile} class="ri-account-circle-line text-2xl"></i>
             </div>
-            <button className=" text-white">My Profile</button>
+            <button onClick={Profile} className=" text-white">My Profile</button>
           </div>
         </div>
       )}
