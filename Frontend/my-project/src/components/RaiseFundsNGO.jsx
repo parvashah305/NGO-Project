@@ -41,13 +41,21 @@ const RaiseFundsNGO = () => {
 };
 
 const CampaignForm = ({ index, saveCampaign }) => {
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = useForm();
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [heroImagePreview, setHeroImagePreview] = useState(null);
 
   const onSubmit = (data) => {
     saveCampaign(data, index);
     reset();
     setImagePreviews([]);
+    setHeroImagePreview(null);
   };
 
   const handleImageUpload = (e) => {
@@ -56,12 +64,19 @@ const CampaignForm = ({ index, saveCampaign }) => {
     setImagePreviews([...imagePreviews, ...previews]);
   };
 
+  const handleHeroImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setHeroImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded shadow space-y-4 mb-6">
       <h2 className="text-lg font-bold">Campaign {index + 1}</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-       
+
         <div>
           <label className="block font-semibold mb-2">Title</label>
           <input
@@ -74,6 +89,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
+ 
         <div>
           <label className="block font-semibold mb-2">Cause</label>
           <input
@@ -85,6 +101,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
             <p className="text-red-500 text-sm">{errors.cause.message}</p>
           )}
         </div>
+
 
         <div>
           <label className="block font-semibold mb-2">Target Funds</label>
@@ -101,6 +118,35 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
+     
+        <div>
+          <label className="block font-semibold mb-2">Hero Image</label>
+          <Controller
+            name="heroImage"
+            control={control}
+            render={({ field }) => (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  field.onChange(e.target.files[0]?.name);
+                  handleHeroImageUpload(e);
+                }}
+                className="w-full"
+              />
+            )}
+          />
+          {heroImagePreview && (
+            <div className="mt-4">
+              <img
+                src={heroImagePreview}
+                alt="Hero Preview"
+                className="w-full h-40 object-cover rounded"
+              />
+            </div>
+          )}
+        </div>
+
         <div>
           <label className="block font-semibold mb-2">Upload Images</label>
           <Controller
@@ -112,7 +158,9 @@ const CampaignForm = ({ index, saveCampaign }) => {
                 multiple
                 accept="image/*"
                 onChange={(e) => {
-                  field.onChange(Array.from(e.target.files).map((file) => file.name));
+                  field.onChange(
+                    Array.from(e.target.files).map((file) => file.name)
+                  );
                   handleImageUpload(e);
                 }}
                 className="w-full"
@@ -133,7 +181,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
 
         <button
           type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+          className="bg-black text-white py-2 px-4 rounded hover:bg-blue-700 transition"
         >
           Save
         </button>

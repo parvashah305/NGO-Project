@@ -3,6 +3,7 @@ const brcypt = require('bcryptjs')
 const NGO = require('../models/ngoSchema')
 const { logApi } = require('../utils')
 const Contact=require('../models/contactSchema')
+const RaiseFundsNGO = require('../models/raiseFundsNGOSchema')
 
 require('dotenv').config();
 
@@ -86,3 +87,37 @@ exports.contact=async(req,res)=>{
         return res.status(500).json({message:"Internal Server Error"})
     }
 }
+
+exports.addCampaign = async (req, res) => {
+    try {
+ 
+        const token = req.headers.authorization?.split(' ')[1];
+
+        if (!token) {
+            return res.status(401).json({ message: 'Authorization token is missing.' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const ngoId = decoded.id; 
+
+        const ngo = await NGO.findById(ngoId);
+        if (!ngo) {
+            return res.status(404).json({ message: 'NGO not found.' });
+        }
+
+        const { title, cause, targetFunds, heroImage, images } = req.body;
+        const newCampaign = await RaiseFundsNGO.create({
+            title,
+            cause,
+            targetFunds,
+            heroImage,
+            images,
+            ngoId, 
+        });
+
+        return res.status(201).json({ message: 'Campaign added successfully!', campaign: newCampaign });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error.' });
+    }
+};

@@ -4,8 +4,9 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 // const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
-const { registerNGO, login, contact } = require('./controllers/authController')
-var bodyParser = require('body-parser')
+const { registerNGO, login, contact, addCampaign } = require('./controllers/authController')
+var bodyParser = require('body-parser');
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -22,6 +23,7 @@ mongoose.connect(db_uri, { useNewUrlParser: true, useUnifiedTopology: true })
 app.post("/ngo/register", registerNGO);
 app.post("/login", login)
 app.post("/contact",contact)
+app.post("/addcampaign",addCampaign)
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
