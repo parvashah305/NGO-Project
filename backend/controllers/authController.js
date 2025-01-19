@@ -7,6 +7,7 @@ const RaiseFundsNGO = require('../models/raiseFundsNGOSchema')
 
 require('dotenv').config();
 
+
 exports.registerNGO = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -62,6 +63,13 @@ exports.login = async (req, res) => {
             { expiresIn: '24h' }
         );
 
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, 
+        });
+
         return res.status(200).json({ token });
 
     } catch (error) {
@@ -91,7 +99,9 @@ exports.contact=async(req,res)=>{
 exports.addCampaign = async (req, res) => {
     try {
  
-        const token = req.headers.authorization?.split(' ')[1];
+        // const token = req.headers.authorization?.split(' ')[1];
+
+        const token=req.cookies.jwt;
 
         if (!token) {
             return res.status(401).json({ message: 'Authorization token is missing.' });
@@ -121,3 +131,4 @@ exports.addCampaign = async (req, res) => {
         return res.status(500).json({ message: 'Internal server error.' });
     }
 };
+

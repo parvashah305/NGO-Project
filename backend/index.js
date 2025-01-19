@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express')
+const cookieparser=require('cookie-parser')
 const cors = require('cors');
 const mongoose = require('mongoose');
 // const bodyParser = require('body-parser');
@@ -11,8 +12,12 @@ var bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', 
+    credentials: true,             
+}));
 app.use(bodyParser.json());
+app.use(cookieparser())
 
 const db_uri = process.env.MONGODB_URI;
 
