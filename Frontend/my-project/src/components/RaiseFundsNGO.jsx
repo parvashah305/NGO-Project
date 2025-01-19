@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
+import { toast } from "react-toastify";
 
 const RaiseFundsNGO = () => {
   const [forms, setForms] = useState([0]);
@@ -9,11 +10,43 @@ const RaiseFundsNGO = () => {
     setForms([...forms, forms.length]);
   };
 
-  const saveCampaign = (data, index) => {
-    const updatedCampaigns = [...campaigns];
-    updatedCampaigns[index] = { ...data, id: `campaign-${index}-${Date.now()}` };
-    setCampaigns(updatedCampaigns);
-    console.log("Saved Campaigns:", updatedCampaigns);
+  const saveCampaign = async (data, index) => {
+    try {
+      
+      const response = await fetch('http://localhost:3000/addcampaign', {
+        method: 'POST',
+        credentials: 'include', 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        const updatedCampaigns = [...campaigns];
+        updatedCampaigns[index] = { ...data, id: result.campaign._id }; // Use the backend-generated ID
+        setCampaigns(updatedCampaigns);
+        toast.success(result.message,{
+          position:"top-center",
+          autoClose:"3000",
+          theme:"light"
+          })
+      } else {
+        toast.error(result.message,{
+          position:"top-center",
+          autoClose:"3000",
+          theme:"light"
+          })
+      }
+    } catch (error) {
+      toast.error("Error",{
+        position:"top-center",
+        autoClose:"3000",
+        theme:"light"
+        })
+    }
   };
 
   return (
@@ -52,7 +85,9 @@ const CampaignForm = ({ index, saveCampaign }) => {
   const [heroImagePreview, setHeroImagePreview] = useState(null);
 
   const onSubmit = (data) => {
+    
     saveCampaign(data, index);
+
     reset();
     setImagePreviews([]);
     setHeroImagePreview(null);
@@ -75,8 +110,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
     <div className="bg-white p-6 rounded shadow space-y-4 mb-6">
       <h2 className="text-lg font-bold">Campaign {index + 1}</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-
+      <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data" className="space-y-4">
         <div>
           <label className="block font-semibold mb-2">Title</label>
           <input
@@ -89,7 +123,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
- 
         <div>
           <label className="block font-semibold mb-2">Cause</label>
           <input
@@ -101,7 +134,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
             <p className="text-red-500 text-sm">{errors.cause.message}</p>
           )}
         </div>
-
 
         <div>
           <label className="block font-semibold mb-2">Target Funds</label>
@@ -118,7 +150,6 @@ const CampaignForm = ({ index, saveCampaign }) => {
           )}
         </div>
 
-     
         <div>
           <label className="block font-semibold mb-2">Hero Image</label>
           <Controller
@@ -126,7 +157,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
             control={control}
             render={({ field }) => (
               <input
-                type="file"
+                type="file" name="heroImage"
                 accept="image/*"
                 onChange={(e) => {
                   field.onChange(e.target.files[0]?.name);
@@ -154,7 +185,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
             control={control}
             render={({ field }) => (
               <input
-                type="file"
+                type="file" name="images"
                 multiple
                 accept="image/*"
                 onChange={(e) => {
@@ -191,3 +222,5 @@ const CampaignForm = ({ index, saveCampaign }) => {
 };
 
 export default RaiseFundsNGO;
+
+
