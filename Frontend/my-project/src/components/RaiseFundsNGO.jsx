@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -6,18 +6,58 @@ const RaiseFundsNGO = () => {
   const [forms, setForms] = useState([0]);
   const [campaigns, setCampaigns] = useState([]);
 
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/getcampaigns", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setCampaigns(result);
+        toast.success("Campaigns fetched successfully!", {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "light",
+        });
+      } else {
+        toast.error(result.message, {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "light",
+        });
+      }
+    } catch (error) {
+      toast.error("Error fetching campaigns.", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "light",
+      });
+    }
+  };
+
   const addNewForm = () => {
     setForms([...forms, forms.length]);
   };
 
-  const saveCampaign = async (data, index) => {
+  const saveCampaign = async (data, index, isNew = true) => {
     try {
-      
-      const response = await fetch('http://localhost:3000/addcampaign', {
-        method: 'POST',
-        credentials: 'include', 
+      const url = isNew
+        ? "http://localhost:3000/addcampaign"
+        : `http://localhost:3000/updatecampaign/${data.id}`;
+      const method = isNew ? "POST" : "PUT";
+
+      const response = await fetch(url, {
+        method,
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -26,26 +66,32 @@ const RaiseFundsNGO = () => {
 
       if (response.ok) {
         const updatedCampaigns = [...campaigns];
-        updatedCampaigns[index] = { ...data, id: result.campaign._id }; // Use the backend-generated ID
+        if (isNew) {
+          updatedCampaigns.push(result.campaign);
+        } else {
+          const campaignIndex = campaigns.findIndex((c) => c._id === data.id);
+          updatedCampaigns[campaignIndex] = result.campaign;
+        }
         setCampaigns(updatedCampaigns);
-        toast.success(result.message,{
-          position:"top-center",
-          autoClose:"3000",
-          theme:"light"
-          })
+
+        toast.success(result.message, {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "light",
+        });
       } else {
-        toast.error(result.message,{
-          position:"top-center",
-          autoClose:"3000",
-          theme:"light"
-          })
+        toast.error(result.message, {
+          position: "top-center",
+          autoClose: 3000,
+          theme: "light",
+        });
       }
     } catch (error) {
-      toast.error("Error",{
-        position:"top-center",
-        autoClose:"3000",
-        theme:"light"
-        })
+      toast.error("Error saving the campaign.", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "light",
+      });
     }
   };
 
@@ -53,11 +99,28 @@ const RaiseFundsNGO = () => {
     <div className="min-h-screen bg-gray-100 p-8 space-y-6">
       <h1 className="text-3xl font-bold text-center mb-8">Raise Funds</h1>
 
+      <h2 className="text-2xl font-semibold text-center mb-4">
+        {campaigns.length > 0 ? "Ongoing Campaigns" : "No Ongoing Campaigns"}
+      </h2>
+
+      {campaigns.map((campaign, index) => (
+        <CampaignForm
+          key={campaign._id}
+          index={index}
+          campaign={campaign}
+          saveCampaign={(data) => saveCampaign(data, index, false)}
+        />
+      ))}
+
+      <h2 className="text-2xl font-semibold text-center mt-8 mb-4">
+        Add New Campaigns
+      </h2>
+
       {forms.map((formIndex) => (
         <CampaignForm
-          key={formIndex}
+          key={`new-${formIndex}`}
           index={formIndex}
-          saveCampaign={saveCampaign}
+          saveCampaign={(data) => saveCampaign(data, formIndex, true)}
         />
       ))}
 
@@ -66,28 +129,37 @@ const RaiseFundsNGO = () => {
           onClick={addNewForm}
           className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition"
         >
-          Add More
+          Add New Campaign
         </button>
       </div>
     </div>
   );
 };
 
-const CampaignForm = ({ index, saveCampaign }) => {
+const CampaignForm = ({ index, campaign = {}, saveCampaign }) => {
   const {
     register,
     handleSubmit,
     control,
     reset,
     formState: { errors },
-  } = useForm();
-  const [imagePreviews, setImagePreviews] = useState([]);
-  const [heroImagePreview, setHeroImagePreview] = useState(null);
+  } = useForm({
+    defaultValues: {
+      title: campaign.title || "",
+      cause: campaign.cause || "",
+      targetFunds: campaign.targetFunds || "",
+      heroImage: campaign.heroImage || "",
+      images: campaign.images || [],
+    },
+  });
+
+  const [imagePreviews, setImagePreviews] = useState(campaign.images || []);
+  const [heroImagePreview, setHeroImagePreview] = useState(
+    campaign.heroImage || null
+  );
 
   const onSubmit = (data) => {
-    
-    saveCampaign(data, index);
-
+    saveCampaign({ ...data, id: campaign._id });
     reset();
     setImagePreviews([]);
     setHeroImagePreview(null);
@@ -110,7 +182,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
     <div className="bg-white p-6 rounded shadow space-y-4 mb-6">
       <h2 className="text-lg font-bold">Campaign {index + 1}</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data" className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block font-semibold mb-2">Title</label>
           <input
@@ -157,7 +229,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
             control={control}
             render={({ field }) => (
               <input
-                type="file" name="heroImage"
+                type="file"
                 accept="image/*"
                 onChange={(e) => {
                   field.onChange(e.target.files[0]?.name);
@@ -185,7 +257,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
             control={control}
             render={({ field }) => (
               <input
-                type="file" name="images"
+                type="file"
                 multiple
                 accept="image/*"
                 onChange={(e) => {
@@ -212,7 +284,7 @@ const CampaignForm = ({ index, saveCampaign }) => {
 
         <button
           type="submit"
-          className="bg-black text-white py-2 px-4 rounded hover:bg-blue-700 transition"
+          className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition"
         >
           Save
         </button>
@@ -222,5 +294,3 @@ const CampaignForm = ({ index, saveCampaign }) => {
 };
 
 export default RaiseFundsNGO;
-
-
