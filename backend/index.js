@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 
-const { registerNGO, login, contact, addCampaign, getCampaigns, updateCampaign } = require('./controllers/authController');
+const { registerNGO, login, contact, addCampaign, getCampaigns, updateCampaign, checkLogin } = require('./controllers/authController');
 
 const PORT = process.env.PORT || 3000;
 const DB_URI = process.env.MONGODB_URI;
@@ -47,6 +47,7 @@ app.post("/contact", contact);
 app.post("/addcampaign", addCampaign);
 app.get("/getcampaigns", getCampaigns); 
 app.put("/updatecampaign/:id", updateCampaign); 
+app.get("/ngo/check-login",checkLogin)
 
 
 app.use((req, res) => {
