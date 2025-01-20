@@ -6,51 +6,49 @@ const RaiseFundsNGO = require('../models/raiseFundsNGOSchema');
 const { logApi } = require('../utils');
 require('dotenv').config();
 
-
 exports.registerNGO = async (req, res) => {
     try {
         const { name, email, password } = req.body;
-
         const ngoExist = await NGO.findOne({ email });
         if (ngoExist) {
-            return res.status(400).json({ message: "NGO already exists with this email." });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
+            return res.status(400).json({ message: "NGO already exists with the email." });
+        };
         const newNGO = new NGO({
             name,
             email,
-            password: hashedPassword
+            password
         });
-
         await newNGO.save();
-
         return res.status(201).json({ message: "NGO registered successfully." });
     } catch (error) {
-        logApi(req, 500, error);
+        // console.error(`${req.originalUrl}->${error.message}`)
+        logApi(req, 500, error)
         return res.status(500).json({ message: "Internal Server Error" });
     }
-};
-
+}
 
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const loginFor = req.query.loginFor; 
+        const loginFor = req.query.loginFor;
+
+        if (!email || !password || !loginFor) {
+            return res.status(400).json({ message: "Email, password, and login type are required." });
+        }
 
         let user;
         if (loginFor === "ngo") {
-            user = await NGO.findOne({ email });
+            user = await NGO.findOne({ email: email.trim().toLowerCase() });
             if (!user) {
                 return res.status(404).json({ message: "NGO does not exist." });
             }
         } else if (loginFor === "donor") {
-            // TODO: 
-            
-        } 
+            // TODO
+        } else {
+            return res.status(400).json({ message: "Invalid login type." });
+        }
 
-        const passMatch = await bcrypt.compare(password, user.password);
+        const passMatch = await user.matchPassword(password);
         if (!passMatch) {
             return res.status(400).json({ message: "Email or Password is incorrect." });
         }
@@ -70,11 +68,31 @@ exports.login = async (req, res) => {
 
         return res.status(200).json({ token, message: "Login successful!" });
     } catch (error) {
-        logApi(req, 500, error);
+        console.error("Error during login:", error);
         return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
+exports.checkLogin = async (req, res) => {
+    try {
+      const token = req.cookies.jwt;
+  
+      if (!token) {
+        return res.status(401).json({ message: "Not logged in" });
+      }
+  
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await NGO.findById(decoded.id);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      return res.status(200).json({ id: user._id, name: user.name, email: user.email });
+    } catch (error) {
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  };
 
 exports.contact = async (req, res) => {
     try {
@@ -148,7 +166,6 @@ exports.getCampaigns = async (req, res) => {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-
 
 exports.updateCampaign = async (req, res) => {
     try {
