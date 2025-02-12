@@ -15,6 +15,10 @@ const NGODashboard = () => {
     navigate("/raisefunds"); 
   };
 
+  const contact=()=>{
+    navigate("/contact")
+  }
+
   return (
     <div>
       <NavbarProfile/>
@@ -48,7 +52,7 @@ const NGODashboard = () => {
       
         <div className="mt-8 text-center text-gray-600">
           <p>
-            Need help? <a href="/help" className="text-blue-500 hover:underline">Contact Us</a>.
+            Need help? <button onClick={contact} className="text-blue-500 hover:underline">Contact Us</button>.
           </p>
         </div>
       </div>
