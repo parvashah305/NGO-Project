@@ -1,10 +1,28 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const path=require('path')
+const multer=require('multer');
 const NGO = require('../models/ngoSchema');
 const Contact = require('../models/contactSchema');
 const RaiseFundsNGO = require('../models/raiseFundsNGOSchema');
 const { logApi } = require('../utils');
 require('dotenv').config();
+
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         cb(null, path.join(__dirname, "../uploads/"));
+//     },
+//     filename: function (req, file, cb) {
+//         const suffix = Date.now();
+//         cb(null, suffix + "-" + file.originalname); // Fixed typo
+//     },
+// });
+
+const storage=multer.memoryStorage()
+
+const upload=multer({storage})
+
+exports.uploadMiddleware = upload.any();
 
 exports.registerNGO = async (req, res) => {
     try {
@@ -113,12 +131,46 @@ exports.contact = async (req, res) => {
     }
 };
 
+// exports.addCampaign =  async (req, res) => {
+//     try {
+//         const token = req.cookies.jwt; 
+
+//         if (!token) {
+//             return res.status(401).json({ message: 'Authorization token is missing.' });
+//         }
+
+//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//         const ngoId = decoded.id;
+
+//         const ngo = await NGO.findById(ngoId);
+//         if (!ngo) {
+//             return res.status(404).json({ message: 'NGO not found.' });
+//         }
+        
+//         const { title, cause, targetFunds, heroImage, images } = req.body;
+
+//         const newCampaign = await RaiseFundsNGO.create({
+//             title,
+//             cause,
+//             targetFunds,
+//             heroImage,
+//             images,
+//             ngoId, 
+//         });
+
+//         return res.status(201).json({ message: 'Campaign added successfully!', campaign: newCampaign });
+//     } catch (error) {
+//         logApi(req, 500, error);
+//         return res.status(500).json({ message: 'Internal Server Error' });
+//     }
+// };
+
 exports.addCampaign = async (req, res) => {
     try {
-        const token = req.cookies.jwt; 
+        const token = req.cookies.jwt; // Ensure token name matches your login token
 
         if (!token) {
-            return res.status(401).json({ message: 'Authorization token is missing.' });
+            return res.status(401).json({ message: "Authorization token is missing." });
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -126,10 +178,22 @@ exports.addCampaign = async (req, res) => {
 
         const ngo = await NGO.findById(ngoId);
         if (!ngo) {
-            return res.status(404).json({ message: 'NGO not found.' });
+            return res.status(404).json({ message: "NGO not found." });
         }
 
-        const { title, cause, targetFunds, heroImage, images } = req.body;
+        const { title, cause, targetFunds } = req.body;
+
+
+        let heroImage = null;
+        let images = [];
+
+        if (req.files && req.files.length > 0) {
+            // heroImage = `uploads/${req.files[0].filename}`;
+            // images = req.files.map(file => `uploads/${file.filename}`);
+            heroImage = req.files[0].buffer.toString('base64')
+            images =req.files.map(file=>file.buffer.toString('base64'))
+        }
+
 
         const newCampaign = await RaiseFundsNGO.create({
             title,
@@ -137,13 +201,14 @@ exports.addCampaign = async (req, res) => {
             targetFunds,
             heroImage,
             images,
-            ngoId, 
+            ngoId
         });
 
-        return res.status(201).json({ message: 'Campaign added successfully!', campaign: newCampaign });
+        return res.status(201).json({ message: "Campaign added successfully!", campaign: newCampaign });
+
     } catch (error) {
-        logApi(req, 500, error);
-        return res.status(500).json({ message: 'Internal Server Error' });
+        console.error("Error in addCampaign:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
