@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const path=require('path')
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
@@ -33,6 +34,7 @@ app.use(cors({
 
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose.connect(DB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
@@ -46,7 +48,7 @@ app.post("/login", login);
 app.post("/contact", contact);
 app.post("/addcampaign",uploadMiddleware, addCampaign);
 app.get("/getcampaigns", getCampaigns); 
-app.put("/updatecampaign/:id", updateCampaign); 
+app.put("/updatecampaign/:id",uploadMiddleware, updateCampaign); 
 app.get("/ngo/check-login",checkLogin)
 
 
