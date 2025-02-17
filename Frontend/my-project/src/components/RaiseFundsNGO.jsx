@@ -216,12 +216,12 @@ const CampaignForm = ({ index, campaign = {}, saveCampaign }) => {
         <div>
           <label className="block font-semibold mb-2">Hero Image</label>
           <input type="file" onChange={handleHeroImageUpload} />
-          {heroImagePreview && <img src={heroImagePreview} alt="Hero" className="w-full h-40 object-cover mt-2" />}
+          {heroImagePreview && <img src={heroImagePreview} alt="Hero" className="w-full h-full object-cover mt-2" />}
         </div>
         <div>
           <label className="block font-semibold mb-2">Upload Images</label>
           <input type="file" multiple onChange={handleImagesUpload} />
-          <div className="flex space-x-4 mt-4">{imagePreviews.map((img, i) => <img key={i} src={img} alt="Preview" className="w-24 h-24 object-cover" />)}</div>
+          <div className="flex space-x-4 mt-4">{imagePreviews.map((img, i) => <img key={i} src={img} alt="Preview" className="w-40 h-40 object-cover" />)}</div>
         </div>
         <button type="submit" className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition">Save</button>
       </form>
